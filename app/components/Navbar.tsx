@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 
-// এখানে আমরা বলে দিচ্ছি cartCount অবশ্যই একটা সংখ্যা (number) হতে হবে
+// এই অংশটি মিসিং ছিল, তাই এরর আসছে
 interface NavbarProps {
   cartCount: number;
 }
