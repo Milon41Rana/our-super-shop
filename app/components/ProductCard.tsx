@@ -1,7 +1,6 @@
 'use client';
 import React from 'react';
 
-// এখানে আমরা পণ্যের ডিটেইলস কেমন হবে তা বলে দিচ্ছি
 interface ProductProps {
   product: {
     id: number;
@@ -27,4 +26,4 @@ export default function ProductCard({ product, onAddToCart }: ProductProps) {
       </button>
     </div>
   );
-}
+                 }
