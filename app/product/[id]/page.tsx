@@ -1,7 +1,8 @@
 'use client';
 import React from 'react';
-import Navbar from '../../../components/Navbar';
+import Navbar from '../../../components/Navbar'; // ফোল্ডার থেকে বের হয়ে Navbar আনছি
 
+// আমরা আপাতত ডাটাবেস ছাড়া কাজ করছি, তাই পণ্যের তালিকা এখানেও রাখলাম
 const products = [
   { id: 1, name: 'Smart Watch', price: '৳ 1,500', img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&h=200&fit=crop', desc: 'অসাধারণ স্মার্ট ওয়াচ, যা আপনার স্টাইল বাড়িয়ে দেবে দ্বিগুণ।' },
   { id: 2, name: 'Running Shoes', price: '৳ 2,200', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&h=200&fit=crop', desc: 'কমফোর্টেবল রানিং সু, দীর্ঘ সময় হাঁটার জন্য পারফেক্ট।' },
@@ -12,9 +13,13 @@ const products = [
 ];
 
 export default function ProductDetails({ params }: { params: { id: string } }) {
+  // ১. URL থেকে আইডি খুঁজে বের করা হচ্ছে
   const productId = parseInt(params.id);
+  
+  // ২. ওই আইডির পণ্য লিস্ট থেকে খোঁজা হচ্ছে
   const product = products.find((p) => p.id === productId);
 
+  // ৩. যদি ভুল আইডি দেয় (যেমন id=999), তাহলে "পাওয়াস যায়নি" দেখাবে
   if (!product) {
     return <div style={{ textAlign: 'center', marginTop: '50px' }}>পণ্যটি খুঁজে পাওয়া যায়নি! 😢</div>;
   }
@@ -24,20 +29,31 @@ export default function ProductDetails({ params }: { params: { id: string } }) {
       <Navbar cartCount={0} /> 
       
       <div style={{ maxWidth: '800px', margin: '40px auto', backgroundColor: 'white', padding: '20px', borderRadius: '10px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', display: 'flex', gap: '30px', flexWrap: 'wrap' }}>
+        
+        {/* বাম পাশে ছবি */}
         <div style={{ flex: 1 }}>
             <img src={product.img} alt={product.name} style={{ width: '100%', borderRadius: '10px' }} />
         </div>
+
+        {/* ডান পাশে ডিটেইলস */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <h1 style={{ color: '#333' }}>{product.name}</h1>
             <h2 style={{ color: '#f85606' }}>{product.price}</h2>
             <p style={{ color: '#666', lineHeight: '1.6' }}>{product.desc}</p>
+            
             <div style={{ marginTop: '20px' }}>
                 <button style={{ padding: '12px 25px', backgroundColor: '#f85606', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '16px' }}>
                     Buy Now
                 </button>
+                <button style={{ padding: '12px 25px', backgroundColor: '#222', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '16px', marginLeft: '10px' }}>
+                    Add to Cart
+                </button>
             </div>
         </div>
+
       </div>
     </div>
   );
-    }
+  }
+
+
