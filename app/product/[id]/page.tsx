@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import Navbar from '../../../components/Navbar'; // ফোল্ডার থেকে বের হয়ে Navbar আনছি
+import Navbar from '../../components/Navbar'; // ফোল্ডার থেকে বের হয়ে Navbar আনছি
 
 // আমরা আপাতত ডাটাবেস ছাড়া কাজ করছি, তাই পণ্যের তালিকা এখানেও রাখলাম
 const products = [
