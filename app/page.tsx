@@ -1,11 +1,11 @@
 import Navbar from './components/Navbar';
 import { sql } from '@vercel/postgres';
 
-// এই লাইনটি পেজকে ডাইনামিক করবে (মানে রিলোড দিলেই নতুন ডাটা আসবে)
+// এই লাইনটি পেজকে ডাইনামিক করবে (পুরানো ক্যাশ ধরে রাখবে না)
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  let products: any[] = []; // 'any' মানে যেকোনো টাইপের ডাটা আসবে, কোনো ভুল ধরবে না
+  let products: any[] = [];
 
   try {
     // ডাটাবেস থেকে পণ্য আনার চেষ্টা
@@ -13,16 +13,15 @@ export default async function Home() {
     products = result.rows;
   } catch (error) {
     console.error('Database Error:', error);
-    // ডাটাবেস এরর হলে খালি লিস্ট থাকবে, কিন্তু সাইট বন্ধ হবে না
   }
 
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
       <Navbar cartCount={0} />
 
-      {/* হিরো সেকশন */}
+      {/* হিরো সেকশন - টাইটেল পরিবর্তন করা হয়েছে আপডেট বোঝার জন্য */}
       <div className="bg-orange-500 text-white text-center py-12">
-        <h1 className="text-4xl font-bold mb-2">আমাদের সুপার শপে স্বাগতম! 🛍️</h1>
+        <h1 className="text-4xl font-bold mb-2">আমাদের সুপার শপ (Live) 🛍️</h1>
         <p className="text-lg">সবচেয়ে কম দামে সেরা পণ্য কিনুন</p>
       </div>
 
@@ -33,9 +32,12 @@ export default async function Home() {
         </h2>
 
         {products.length === 0 ? (
-          <div className="text-center py-10">
-            <p className="text-gray-500 text-lg">কোনো পণ্য পাওয়া যায়নি অথবা ডাটাবেস কানেকশনে সমস্যা হচ্ছে।</p>
-            <p className="text-sm text-gray-400 mt-2">এডমিন প্যানেল থেকে পণ্য যোগ করুন।</p>
+          <div className="text-center py-20 bg-white rounded-lg shadow">
+            <h3 className="text-xl text-gray-600 font-bold">এখনো কোনো পণ্য নেই!</h3>
+            <p className="text-gray-400 mt-2">এডমিন প্যানেল থেকে পণ্য আপলোড করুন।</p>
+            <a href="/admin" className="inline-block mt-4 text-orange-500 underline">
+              এডমিন প্যানেলে যান &rarr;
+            </a>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -50,7 +52,6 @@ export default async function Home() {
                 </div>
                 <h3 className="font-bold text-lg text-gray-800 mb-1">{product.name}</h3>
                 <p className="text-orange-600 font-bold text-xl mb-2">{product.price}</p>
-                
                 <button className="w-full bg-gray-900 text-white py-2 rounded hover:bg-orange-600 transition-colors">
                   Add to Cart 🛒
                 </button>
