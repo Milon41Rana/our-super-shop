@@ -1,15 +1,20 @@
 import Navbar from './components/Navbar';
 import { sql } from '@vercel/postgres';
 
-// ডাটাবেস থেকে পণ্য আনার ফাংশন (No Cache - যাতে সাথে সাথে আপডেট হয়)
-async function getProducts() {
-  const { rows } = await sql`SELECT * FROM products ORDER BY id DESC`;
-  return rows;
-}
+// এই লাইনটি পেজকে ডাইনামিক করবে (মানে রিলোড দিলেই নতুন ডাটা আসবে)
+export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  // ডাটাবেস থেকে পণ্যগুলো আনা হচ্ছে
-  const products = await getProducts();
+  let products: any[] = []; // 'any' মানে যেকোনো টাইপের ডাটা আসবে, কোনো ভুল ধরবে না
+
+  try {
+    // ডাটাবেস থেকে পণ্য আনার চেষ্টা
+    const result = await sql`SELECT * FROM products ORDER BY id DESC`;
+    products = result.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    // ডাটাবেস এরর হলে খালি লিস্ট থাকবে, কিন্তু সাইট বন্ধ হবে না
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen font-sans">
@@ -21,23 +26,26 @@ export default async function Home() {
         <p className="text-lg">সবচেয়ে কম দামে সেরা পণ্য কিনুন</p>
       </div>
 
-      {/* পণ্যের তালিকা (যা ডাটাবেস থেকে এসেছে) */}
+      {/* পণ্যের তালিকা */}
       <div className="max-w-6xl mx-auto p-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b-2 border-orange-500 inline-block">
           🔥 নতুন কালেকশন ({products.length})
         </h2>
 
         {products.length === 0 ? (
-          <p className="text-center text-gray-500 mt-10">এখনো কোনো পণ্য আপলোড করা হয়নি। এডমিন প্যানেল থেকে পণ্য যোগ করুন।</p>
+          <div className="text-center py-10">
+            <p className="text-gray-500 text-lg">কোনো পণ্য পাওয়া যায়নি অথবা ডাটাবেস কানেকশনে সমস্যা হচ্ছে।</p>
+            <p className="text-sm text-gray-400 mt-2">এডমিন প্যানেল থেকে পণ্য যোগ করুন।</p>
+          </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {products.map((product) => (
+            {products.map((product: any) => (
               <div key={product.id} className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-100">
-                <div className="h-48 bg-gray-100 rounded mb-4 overflow-hidden">
+                <div className="h-48 bg-gray-100 rounded mb-4 overflow-hidden relative">
                   <img 
                     src={product.image_url || "https://via.placeholder.com/300"} 
                     alt={product.name} 
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 <h3 className="font-bold text-lg text-gray-800 mb-1">{product.name}</h3>
@@ -53,4 +61,4 @@ export default async function Home() {
       </div>
     </div>
   );
-        }
+            }
