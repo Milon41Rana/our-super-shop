@@ -1,60 +1,56 @@
-'use client';
-import React, { useState } from 'react';
 import Navbar from './components/Navbar';
-import ProductCard from './components/ProductCard';
+import { sql } from '@vercel/postgres';
 
-// পণ্যের টাইপ বা গঠন কেমন হবে তা এখানে বলা হলো
-interface Product {
-  id: number;
-  name: string;
-  price: string;
-  img: string;
+// ডাটাবেস থেকে পণ্য আনার ফাংশন (No Cache - যাতে সাথে সাথে আপডেট হয়)
+async function getProducts() {
+  const { rows } = await sql`SELECT * FROM products ORDER BY id DESC`;
+  return rows;
 }
 
-export default function Home() {
-  const [cartCount, setCartCount] = useState<number>(0);
-
-  // এখানে বলে দিলাম productName অবশ্যই স্ট্রিং হতে হবে
-  const addToCart = (productName: string) => {
-    setCartCount(cartCount + 1);
-    alert(productName + " সফলভাবে কার্টে যোগ হয়েছে! ✅");
-  };
-
-  const products: Product[] = [
-    { id: 1, name: 'Smart Watch', price: '৳ 1,500', img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&h=200&fit=crop' },
-    { id: 2, name: 'Running Shoes', price: '৳ 2,200', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&h=200&fit=crop' },
-    { id: 3, name: 'Leather Bag', price: '৳ 3,500', img: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=200&h=200&fit=crop' },
-    { id: 4, name: 'Headphone', price: '৳ 900', img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop' },
-    { id: 5, name: 'Sunglasses', price: '৳ 1,200', img: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200&h=200&fit=crop' },
-    { id: 6, name: 'Gaming Mouse', price: '৳ 850', img: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=200&h=200&fit=crop' },
-  ];
+export default async function Home() {
+  // ডাটাবেস থেকে পণ্যগুলো আনা হচ্ছে
+  const products = await getProducts();
 
   return (
-    <div style={{ fontFamily: 'Arial, sans-serif', backgroundColor: '#f5f5f5', minHeight: '100vh' }}>
-      <Navbar cartCount={cartCount} />
+    <div className="bg-gray-50 min-h-screen font-sans">
+      <Navbar cartCount={0} />
 
-      <div style={{ backgroundColor: 'white', padding: '40px 20px', textAlign: 'center', marginBottom: '20px' }}>
-        <h1 style={{ color: '#333', margin: '0 0 10px 0' }}>Big Sale is Live! 🔥</h1>
-        <p style={{ color: '#666' }}>সেরা অফারে কিনুন আপনার পছন্দের পণ্য</p>
+      {/* হিরো সেকশন */}
+      <div className="bg-orange-500 text-white text-center py-12">
+        <h1 className="text-4xl font-bold mb-2">আমাদের সুপার শপে স্বাগতম! 🛍️</h1>
+        <p className="text-lg">সবচেয়ে কম দামে সেরা পণ্য কিনুন</p>
       </div>
 
-      <div style={{ padding: '0 20px', maxWidth: '1200px', margin: '0 auto', paddingBottom: '50px' }}>
-        <h3 style={{ borderBottom: '2px solid #f85606', paddingBottom: '10px', display: 'inline-block' }}>Just For You</h3>
-        
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px', marginTop: '20px', justifyContent: 'center' }}>
-          {products.map((product) => (
-            <ProductCard 
-              key={product.id} 
-              product={product} 
-              onAddToCart={addToCart} 
-            />
-          ))}
-        </div>
-      </div>
+      {/* পণ্যের তালিকা (যা ডাটাবেস থেকে এসেছে) */}
+      <div className="max-w-6xl mx-auto p-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6 border-b-2 border-orange-500 inline-block">
+          🔥 নতুন কালেকশন ({products.length})
+        </h2>
 
-      <footer style={{ backgroundColor: '#222', color: 'white', padding: '20px', textAlign: 'center' }}>
-        <p>&copy; 2025 My Super Shop</p>
-      </footer>
+        {products.length === 0 ? (
+          <p className="text-center text-gray-500 mt-10">এখনো কোনো পণ্য আপলোড করা হয়নি। এডমিন প্যানেল থেকে পণ্য যোগ করুন।</p>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {products.map((product) => (
+              <div key={product.id} className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-100">
+                <div className="h-48 bg-gray-100 rounded mb-4 overflow-hidden">
+                  <img 
+                    src={product.image_url || "https://via.placeholder.com/300"} 
+                    alt={product.name} 
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <h3 className="font-bold text-lg text-gray-800 mb-1">{product.name}</h3>
+                <p className="text-orange-600 font-bold text-xl mb-2">{product.price}</p>
+                
+                <button className="w-full bg-gray-900 text-white py-2 rounded hover:bg-orange-600 transition-colors">
+                  Add to Cart 🛒
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
-    }
+        }
