@@ -1,7 +1,7 @@
 import Navbar from './components/Navbar';
 import { sql } from '@vercel/postgres';
 
-// এই লাইনটি পেজকে ডাইনামিক করবে (পুরানো ক্যাশ ধরে রাখবে না)
+// পেজটি ডাইনামিক করা হচ্ছে (যাতে রিলোড দিলে নতুন ডাটা আসে)
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
@@ -13,6 +13,7 @@ export default async function Home() {
     products = result.rows;
   } catch (error) {
     console.error('Database Error:', error);
+    // ডাটাবেস এরর হলেও ওয়েবসাইট ক্র্যাশ করবে না
   }
 
   return (
@@ -32,10 +33,10 @@ export default async function Home() {
         </h2>
 
         {products.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-lg shadow">
+          <div className="text-center py-20 bg-white rounded-lg shadow border border-gray-100">
             <h3 className="text-xl text-gray-600 font-bold">এখনো কোনো পণ্য নেই!</h3>
-            <p className="text-gray-400 mt-2">এডমিন প্যানেল থেকে পণ্য আপলোড করুন।</p>
-            <a href="/admin" className="inline-block mt-4 text-orange-500 underline">
+            <p className="text-gray-400 mt-2">দয়া করে এডমিন প্যানেল থেকে পণ্য আপলোড করুন।</p>
+            <a href="/admin" className="inline-block mt-4 px-6 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition">
               এডমিন প্যানেলে যান &rarr;
             </a>
           </div>
@@ -47,7 +48,7 @@ export default async function Home() {
                   <img 
                     src={product.image_url || "https://via.placeholder.com/300"} 
                     alt={product.name} 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                 </div>
                 <h3 className="font-bold text-lg text-gray-800 mb-1">{product.name}</h3>
