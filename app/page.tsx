@@ -14,6 +14,11 @@ export default async function Home() {
   } catch (error) {
     console.error('Database Error:', error);
     // ডাটাবেস এরর হলেও ওয়েবসাইট ক্র্যাশ করবে না
+    products = [
+      { id: 1, name: 'Sample Product 1', price: '৳500', image_url: 'https://via.placeholder.com/300/FF5733/FFFFFF?text=Product+1' },
+      { id: 2, name: 'Sample Product 2', price: '৳750', image_url: 'https://via.placeholder.com/300/33FF57/FFFFFF?text=Product+2' },
+      { id: 3, name: 'Sample Product 3', price: '৳1200', image_url: 'https://via.placeholder.com/300/3357FF/FFFFFF?text=Product+3' },
+    ];
   }
 
   return (
@@ -63,4 +68,4 @@ export default async function Home() {
       </div>
     </div>
   );
-            }
+}
