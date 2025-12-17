@@ -1,31 +1,31 @@
 'use client';
 import React from 'react';
-import { useParams } from 'next/navigation'; // আধুনিক পদ্ধতিতে আইডি ধরার টুল
+import { useParams } from 'next/navigation'; // Tool to get id from parameters
 import Navbar from '../../components/Navbar';
 
 const products = [
-  { id: 1, name: 'Smart Watch', price: '৳ 1,500', img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&h=200&fit=crop', desc: 'অসাধারণ স্মার্ট ওয়াচ, যা আপনার স্টাইল বাড়িয়ে দেবে দ্বিগুণ।' },
-  { id: 2, name: 'Running Shoes', price: '৳ 2,200', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&h=200&fit=crop', desc: 'কমফোর্টেবল রানিং সু, দীর্ঘ সময় হাঁটার জন্য পারফেক্ট।' },
-  { id: 3, name: 'Leather Bag', price: '৳ 3,500', img: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=200&h=200&fit=crop', desc: '১০০% অরিজিনাল লেদার ব্যাগ, অফিসের জন্য সেরা চয়েস।' },
-  { id: 4, name: 'Headphone', price: '৳ 900', img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop', desc: 'বেস এবং সাউন্ড কোয়ালিটি নিয়ে কোনো কথা হবে না।' },
-  { id: 5, name: 'Sunglasses', price: '৳ 1,200', img: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200&h=200&fit=crop', desc: 'রোদের হাত থেকে চোখকে রক্ষা করুন স্টাইলিশ ভাবে।' },
-  { id: 6, name: 'Gaming Mouse', price: '৳ 850', img: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=200&h=200&fit=crop', desc: 'গেমারদের জন্য হাই ডিপিআই গেমিং মাউস।' },
+  { id: 1, name: 'Smart Watch', price: '৳ 1,500', img: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&h=200&fit=crop', desc: 'An amazing smart watch that will double your style.' },
+  { id: 2, name: 'Running Shoes', price: '৳ 2,200', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&h=200&fit=crop', desc: 'Comfortable running shoes, perfect for long walks.' },
+  { id: 3, name: 'Leather Bag', price: '৳ 3,500', img: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=200&h=200&fit=crop', desc: '100% original leather bag, the best choice for the office.' },
+  { id: 4, name: 'Headphone', price: '৳ 900', img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop', desc: 'There will be no compromise on bass and sound quality.' },
+  { id: 5, name: 'Sunglasses', price: '৳ 1,200', img: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200&h=200&fit=crop', desc: 'Protect your eyes from the sun in a stylish way.' },
+  { id: 6, name: 'Gaming Mouse', price: '৳ 850', img: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=200&h=200&fit=crop', desc: 'High DPI gaming mouse for gamers.' },
 ];
 
 export default function ProductDetails() {
-  // হুক ব্যবহার করে আইডি ধরছি (এটি কখনো ভুল করবে না)
+  // Using hook to get the id (it will never fail)
   const params = useParams();
   
-  // আইডি চেক করছি
+  // Checking for id
   if (!params?.id) {
-    return <div style={{ textAlign: 'center', marginTop: '50px' }}>লোডিং...</div>;
+    return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</div>;
   }
 
   const productId = Number(params.id);
   const product = products.find((p) => p.id === productId);
 
   if (!product) {
-    return <div style={{ textAlign: 'center', marginTop: '50px' }}>পণ্যটি খুঁজে পাওয়া যায়নি! (ID: {params.id}) 😢</div>;
+    return <div style={{ textAlign: 'center', marginTop: '50px' }}>Product not found! (ID: {params.id}) 😢</div>;
   }
 
   return (

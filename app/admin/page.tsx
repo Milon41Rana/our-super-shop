@@ -9,7 +9,7 @@ export default function AdminDashboard() {
     img: '',
     desc: ''
   });
-  const [loading, setLoading] = useState(false); // লোডিং বাটন দেখানোর জন্য
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: any) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,29 +17,34 @@ export default function AdminDashboard() {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (!formData.name || !formData.price) return alert('নাম এবং দাম দিতেই হবে!');
+    if (!formData.name || !formData.price || !formData.img || !formData.desc) {
+      return alert('Please fill in all fields.');
+    }
     
-    setLoading(true); // আপলোড শুরু হলে বাটন ঘুরবে
+    setLoading(true);
 
     try {
-      // আমাদের বানানো API-তে তথ্য পাঠানো হচ্ছে
       const response = await fetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          price: parseFloat(formData.price)
+        }),
       });
 
       if (response.ok) {
-        alert('আলহামদুলিল্লাহ! পণ্য সফলভাবে আপলোড হয়েছে। 🎉');
-        setFormData({ name: '', price: '', img: '', desc: '' }); // ফর্ম খালি করা
+        alert('Product added successfully! 🎉');
+        setFormData({ name: '', price: '', img: '', desc: '' });
       } else {
-        alert('দুঃখিত, আপলোড হয়নি। আবার চেষ্টা করুন।');
+        const errorData = await response.json();
+        alert(`Failed to add product: ${errorData.message || 'Please try again.'}`);
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('সার্ভারে সমস্যা হয়েছে।');
+      alert('An error occurred on the server.');
     } finally {
-      setLoading(false); // লোডিং শেষ
+      setLoading(false);
     }
   };
 
@@ -48,29 +53,29 @@ export default function AdminDashboard() {
       <Navbar cartCount={0} />
       
       <div style={{ maxWidth: '600px', margin: '50px auto', backgroundColor: 'white', padding: '40px', borderRadius: '15px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
-          <h2 style={{ textAlign: 'center', color: '#333', marginBottom: '30px' }}>📦 নতুন পণ্য যোগ করুন</h2>
+          <h2 style={{ textAlign: 'center', color: '#333', marginBottom: '30px' }}>📦 Add New Product</h2>
           
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <input 
-                type="text" name="name" placeholder="পণ্যের নাম (যেমন: কোয়েল পাখির ডিম)" 
+                type="text" name="name" placeholder="Product Name (e.g., Quail Eggs)" 
                 value={formData.name} onChange={handleChange}
                 style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '16px' }} 
               />
               
               <input 
-                type="text" name="price" placeholder="দাম (যেমন: ৳ ১৫০)" 
+                type="number" name="price" placeholder="Price (e.g., 150)" 
                 value={formData.price} onChange={handleChange}
                 style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '16px' }} 
               />
 
               <input 
-                type="text" name="img" placeholder="ছবির লিংক (Unsplash বা অন্য লিংক)" 
+                type="text" name="img" placeholder="Image URL (from Unsplash or other source)" 
                 value={formData.img} onChange={handleChange}
                 style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '16px' }} 
               />
               
               <textarea 
-                name="desc" placeholder="পণ্যের বিবরণ..." 
+                name="desc" placeholder="Product description..." 
                 value={formData.desc} onChange={handleChange}
                 rows={4}
                 style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '16px', fontFamily: 'Arial' }} 
@@ -78,13 +83,13 @@ export default function AdminDashboard() {
 
               <button 
                 type="submit" 
-                disabled={loading} // লোডিং অবস্থায় বাটন কাজ করবে না
+                disabled={loading}
                 style={{ padding: '15px', backgroundColor: loading ? '#ccc' : '#f85606', color: 'white', border: 'none', borderRadius: '8px', fontSize: '18px', fontWeight: 'bold', cursor: loading ? 'not-allowed' : 'pointer' }}
               >
-                  {loading ? 'আপলোড হচ্ছে...' : '🚀 পণ্য আপলোড করুন'}
+                  {loading ? 'Uploading...' : '🚀 Upload Product'}
               </button>
           </form>
       </div>
     </div>
   );
-  }
+}
