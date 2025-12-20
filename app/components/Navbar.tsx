@@ -20,7 +20,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Right side icons & Auth */}
+          {/* Right side icons & Auth Links */}
           <div className="flex items-center space-x-2 sm:space-x-4">
             {/* Cart Icon */}
             <Link href="/cart" className="relative text-gray-600 hover:text-orange-500 p-2">
@@ -34,11 +34,11 @@ export default function Navbar() {
               )}
             </Link>
             
-            {/* User Account Section */}
+            {/* User Authentication Section */}
             <div className="flex items-center space-x-2 sm:space-x-4">
               {isAuthenticated ? (
                 <>
-                  <Link href="/account" className="text-gray-600 hover:text-orange-500 transition-colors">
+                  <Link href="/account" className="text-gray-600 hover:text-orange-500 transition-colors text-sm sm:text-base">
                     Account
                   </Link>
                   <button onClick={logout} className="px-3 py-2 text-sm bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors">
