@@ -6,14 +6,15 @@ import Navbar from '../components/Navbar';
 import { useCart } from '../context/CartContext';
 
 export default function CartPage() {
-  const { cartItems, cartCount } = useCart();
+  const { cartItems, cartCount, removeFromCart, updateQuantity, totalPrice } = useCart();
 
-  // Calculate the total price
-  const totalPrice = cartItems.reduce((total, item) => {
-    // Remove currency symbols and convert to number
-    const price = Number(item.price.replace(/[^0-9.-]+/g, ""));
-    return total + price;
-  }, 0);
+  const handleQuantityChange = (id: number, quantity: number) => {
+    updateQuantity(id, quantity);
+  };
+
+  const handleRemove = (id: number) => {
+    removeFromCart(id);
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -30,26 +31,32 @@ export default function CartPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Cart Items List */}
             <div className="md:col-span-2 space-y-4">
-              {cartItems.map((item, index) => (
-                <div key={index} className="flex items-center bg-white p-4 rounded-lg shadow-md">
-                  <img src={item.image_url} alt={item.name} className="w-20 h-20 object-cover rounded-md mr-4" />
+              {cartItems.map((item) => (
+                <div key={item.id} className="flex items-center bg-white p-4 rounded-lg shadow-md">
+                  <img src={item.img} alt={item.name} className="w-20 h-20 object-cover rounded-md mr-4" />
                   <div className="flex-grow">
                     <h2 className="font-bold text-lg">{item.name}</h2>
+                    <div className="flex items-center mt-2">
+                      <button onClick={() => handleQuantityChange(item.id, item.quantity - 1)} className="px-2 py-1 bg-gray-200 rounded">-</button>
+                      <span className="px-4 font-semibold">{item.quantity}</span>
+                      <button onClick={() => handleQuantityChange(item.id, item.quantity + 1)} className="px-2 py-1 bg-gray-200 rounded">+</button>
+                    </div>
                   </div>
-                  <p className="font-bold text-lg text-gray-800">{item.price}</p>
+                  <div className="text-right">
+                     <p className="font-bold text-lg text-gray-800">{item.price}</p>
+                     <button onClick={() => handleRemove(item.id)} className="text-sm text-red-500 hover:underline mt-2">Remove</button>
+                  </div>
                 </div>
               ))}
             </div>
 
-            {/* Order Summary */}
             <div className="md:col-span-1">
               <div className="bg-white p-6 rounded-lg shadow-md sticky top-24">
                 <h2 className="text-xl font-bold border-b pb-4 mb-4">Order Summary</h2>
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-600">Subtotal ({cartCount} items)</span>
-                  <span className="font-bold">৳{totalPrice.toFixed(2)}</span>
+                  <span className="font-bold">{totalPrice}</span>
                 </div>
                 <div className="flex justify-between mb-4">
                   <span className="text-gray-600">Shipping</span>
@@ -57,11 +64,11 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between font-bold text-xl border-t pt-4 mb-6">
                   <span>Total</span>
-                  <span>৳{totalPrice.toFixed(2)}</span>
+                  <span>{totalPrice}</span>
                 </div>
-                <button className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                <Link href="/checkout" className="block w-full text-center bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
                   Proceed to Checkout
-                </button>
+                </Link>
               </div>
             </div>
           </div>
