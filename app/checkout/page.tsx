@@ -1,7 +1,6 @@
-'''
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '../components/Navbar';
 import { useCart } from '../context/CartContext';
@@ -9,10 +8,14 @@ import { useCart } from '../context/CartContext';
 export default function CheckoutPage() {
   const { cartItems, cartCount, totalPrice, setLastOrder, clearCart } = useCart();
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // ফাংশনটিকে async করা হয়েছে
   const handleCheckout = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
     const formData = new FormData(event.currentTarget);
     const customerData = Object.fromEntries(formData.entries());
 
@@ -23,7 +26,6 @@ export default function CheckoutPage() {
     };
 
     try {
-      // নতুন: API-তে অর্ডার ডেটা পাঠানো হচ্ছে
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: {
@@ -33,19 +35,21 @@ export default function CheckoutPage() {
       });
 
       if (!response.ok) {
-        // যদি সার্ভার থেকে কোনো error আসে, তাহলে exception throw করা হবে
-        throw new Error('Failed to save the order.');
+        // সার্ভার থেকে পাওয়া এরর মেসেজ ব্যবহার করা
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to place order. Please try again.');
       }
 
-      // শুধুমাত্র সফলভাবে ডেটাবেসে সেভ হলেই পরবর্তী ধাপে যাবে
+      // শুধুমাত্র সফল অর্ডারের পরেই কার্ট ক্লিয়ার এবং রিডাইরেক্ট করা
       setLastOrder(order);
       clearCart();
       router.push('/order-confirmation');
 
-    } catch (error) {
-      console.error('Checkout Error:', error);
-      // ব্যবহারকারীকে একটি error বার্তা দেখানো যেতে পারে
-      alert('Could not place your order. Please try again.');
+    } catch (err: any) {
+      console.error('Checkout Error:', err);
+      setError(err.message || 'An unexpected error occurred.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -62,11 +66,11 @@ export default function CheckoutPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Customer Information Form */}
             <div className="md:col-span-2">
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h2 className="text-xl font-bold mb-4">Shipping Information</h2>
                 <form onSubmit={handleCheckout}>
+                  {/* Form fields... */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">Full Name</label>
@@ -81,16 +85,26 @@ export default function CheckoutPage() {
                     <label htmlFor="address" className="block text-sm font-medium text-gray-700">Full Address</label>
                     <textarea id="address" name="address" rows={3} className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" required></textarea>
                   </div>
+                  
+                  {error && (
+                    <div className="mt-4 text-center text-red-600 bg-red-100 p-3 rounded-md">
+                      <p>{error}</p>
+                    </div>
+                  )}
+
                   <div className="mt-6">
-                    <button type="submit" className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
-                      Place Order (Cash on Delivery)
+                    <button 
+                      type="submit" 
+                      className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? 'Processing...' : 'Place Order (Cash on Delivery)'}
                     </button>
                   </div>
                 </form>
               </div>
             </div>
 
-            {/* Order Summary */}
             <div className="md:col-span-1">
               <div className="bg-white p-6 rounded-lg shadow-md sticky top-24">
                 <h2 className="text-xl font-bold border-b pb-4 mb-4">Your Order ({cartCount} items)</h2>
@@ -117,4 +131,3 @@ export default function CheckoutPage() {
     </div>
   );
 }
-'''
