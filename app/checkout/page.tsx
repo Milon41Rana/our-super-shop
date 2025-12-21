@@ -1,33 +1,52 @@
+'''
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation'; // next/navigation থেকে useRouter ইম্পোর্ট করা হয়েছে
+import { useRouter } from 'next/navigation';
 import Navbar from '../components/Navbar';
 import { useCart } from '../context/CartContext';
 
 export default function CheckoutPage() {
   const { cartItems, cartCount, totalPrice, setLastOrder, clearCart } = useCart();
-  const router = useRouter(); // useRouter হুক ব্যবহার করা হয়েছে
+  const router = useRouter();
 
-  const handleCheckout = (event: React.FormEvent<HTMLFormElement>) => {
+  // ফাংশনটিকে async করা হয়েছে
+  const handleCheckout = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const customerData = Object.fromEntries(formData.entries());
 
-    // অর্ডারের তথ্য তৈরি করা
     const order = {
       customer: customerData,
       items: cartItems,
       total: totalPrice,
     };
 
-    // অর্ডারের তথ্য কনটেক্সটে সেভ করা
-    setLastOrder(order);
-    // কার্ট খালি করা
-    clearCart();
-    
-    // অর্ডার কনফার্মেশন পেজে রিডাইরেক্ট করা
-    router.push('/order-confirmation');
+    try {
+      // নতুন: API-তে অর্ডার ডেটা পাঠানো হচ্ছে
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(order),
+      });
+
+      if (!response.ok) {
+        // যদি সার্ভার থেকে কোনো error আসে, তাহলে exception throw করা হবে
+        throw new Error('Failed to save the order.');
+      }
+
+      // শুধুমাত্র সফলভাবে ডেটাবেসে সেভ হলেই পরবর্তী ধাপে যাবে
+      setLastOrder(order);
+      clearCart();
+      router.push('/order-confirmation');
+
+    } catch (error) {
+      console.error('Checkout Error:', error);
+      // ব্যবহারকারীকে একটি error বার্তা দেখানো যেতে পারে
+      alert('Could not place your order. Please try again.');
+    }
   };
 
   return (
@@ -98,3 +117,4 @@ export default function CheckoutPage() {
     </div>
   );
 }
+'''

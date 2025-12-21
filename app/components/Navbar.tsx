@@ -47,6 +47,7 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
+        
                   <Link href="/login" className="text-gray-600 hover:text-orange-500 transition-colors text-sm sm:text-base">
                     Login
                   </Link>
