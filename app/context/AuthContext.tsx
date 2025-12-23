@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
 // Define the shape of a user
 interface User {
@@ -37,38 +37,54 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true); // Add a loading state
+
+  useEffect(() => {
+    // On initial load, try to get the user from localStorage
+    try {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.error("Failed to parse user from localStorage", error);
+      // If parsing fails, ensure user is logged out
+      localStorage.removeItem('user');
+    }
+    setLoading(false); // Finished loading
+  }, []);
+
+  useEffect(() => {
+    // When user state changes, update localStorage
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
+    }
+  }, [user]);
+
   const isAuthenticated = !!user;
 
-  // Dummy login function
   const login = async (email: string, pass: string) => {
-    console.log('Attempting login with:', { email, pass });
-    // In a real app, you would call an API here.
-    // For now, we'll simulate a successful login.
-    if(email && pass) { 
-        const mockUser: User = { id: '1', fullName: 'John Doe', email: email };
-        setUser(mockUser);
-        return true;
+    if (email && pass) {
+      const mockUser: User = { id: '1', fullName: 'John Doe', email: email };
+      setUser(mockUser);
+      return true;
     }
     return false;
   };
 
-  // Dummy register function
   const register = async (fullName: string, email: string, pass: string) => {
-    console.log('Attempting to register:', { fullName, email, pass });
-    // In a real app, you would call an API here.
-    // For now, we'll simulate a successful registration.
-    if(fullName && email && pass) {
-        const mockUser: User = { id: '1', fullName: fullName, email: email };
-        setUser(mockUser);
-        return true;
+    if (fullName && email && pass) {
+      const mockUser: User = { id: '1', fullName: fullName, email: email };
+      setUser(mockUser);
+      return true;
     }
     return false;
   };
 
-  // Logout function
   const logout = () => {
     setUser(null);
-    console.log('User logged out');
   };
 
   const value = {
@@ -78,6 +94,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     register,
     logout,
   };
+  
+  // Don't render children until we have checked for a stored user
+  if (loading) {
+      return null; // Or a loading spinner
+  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
