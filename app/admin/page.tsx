@@ -125,8 +125,9 @@ const DashboardContent = () => {
 
 export default function AdminPage() {
   const { user, isAuthenticated } = useAuth();
-  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-  const isAuthorized = isAuthenticated && user?.email === adminEmail;
+  // The environment variable was not loading correctly on the client side.
+  // Hardcoding the email directly is a more reliable solution for this check.
+  const isAuthorized = isAuthenticated && user?.email === 'admin@example.com';
 
   if (!isAuthorized) {
     return <AccessDenied />;
