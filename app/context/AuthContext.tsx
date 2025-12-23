@@ -37,10 +37,10 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true); // Add a loading state
 
   useEffect(() => {
-    // On initial load, try to get the user from localStorage
+    // On initial load, try to get the user from localStorage.
+    // This runs only on the client, after the initial server render.
     try {
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
@@ -48,10 +48,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
     } catch (error) {
       console.error("Failed to parse user from localStorage", error);
-      // If parsing fails, ensure user is logged out
       localStorage.removeItem('user');
     }
-    setLoading(false); // Finished loading
   }, []);
 
   useEffect(() => {
@@ -94,11 +92,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     register,
     logout,
   };
-  
-  // Don't render children until we have checked for a stored user
-  if (loading) {
-      return null; // Or a loading spinner
-  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
