@@ -1,58 +1,47 @@
+
 'use client';
 
-import { useAuth } from '../context/AuthContext';
 import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 
-// Product ডেটার টাইপ নির্ধারণ
 interface Product {
   id: number;
   name: string;
   price: number;
-  image_url: string; // ডেটাবেস থেকে image_url আসছে
+  image_url: string;
 }
 
-// একটি কম্পোনেন্ট যা অ্যাক্সেস না থাকলে দেখানো হবে
-const AccessDenied = () => {
-  return (
-    <div className="container mx-auto p-8 text-center">
-      <h1 className="text-3xl font-bold text-red-600">Access Denied</h1>
-      <p className="mt-4">You do not have permission to view this page.</p>
-    </div>
-  );
-};
-
-// অ্যাডমিন ড্যাশবোর্ডের মূল কন্টেন্ট
-const DashboardContent = () => {
+export default function AdminDashboard() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('/api/products');
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
+      }
+      const data = await response.json();
+      setProducts(data.products);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch('/api/products');
-        const data = await response.json();
-        setProducts(data.products || []);
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
-        setError('Failed to load products.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProducts();
   }, []);
 
-  const handleDelete = async (productId: number) => {
-    if (!window.confirm('Are you sure you want to delete this product?')) {
+  const handleDelete = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this product?')) {
       return;
     }
 
     try {
-      const response = await fetch(`/api/products/${productId}`, {
+      const response = await fetch(`/api/products/${id}`, {
         method: 'DELETE',
       });
 
@@ -61,77 +50,64 @@ const DashboardContent = () => {
         throw new Error(result.message || 'Failed to delete product');
       }
 
-      setProducts(products.filter(p => p.id !== productId));
+      alert('Product deleted successfully!');
+      fetchProducts(); // Re-fetch products to update the list
 
     } catch (err: any) {
       setError(err.message);
-      console.error('Delete failed:', err);
+      alert(`Error: ${err.message}`);
     }
   };
+
+  if (loading) return <p className="text-center mt-8">Loading products...</p>;
+  if (error) return <p className="text-center mt-8 text-red-500">Error: {error}</p>;
 
   return (
     <div className="container mx-auto p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
         <Link href="/admin/add-product">
-            <button className="bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700">
-            + Add New Product
+            <button className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700">
+                + Add New Product
             </button>
         </Link>
       </div>
-      <p className="mb-8">Welcome to the Our Shop admin panel. Manage your products efficiently.</p>
       
-      {error && <p className="text-center text-red-500 bg-red-100 p-3 rounded-md mb-4">Error: {error}</p>}
+      <p className="mb-6">Welcome to the Our Shop admin panel. Manage your products efficiently.</p>
 
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-semibold mb-4">Product List</h2>
-        {loading ? (
-          <p>Loading products...</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm font-light">
-              <thead className="border-b font-medium dark:border-neutral-500">
-                <tr>
-                  <th scope="col" className="px-6 py-4">Image</th>
-                  <th scope="col" className="px-6 py-4">Name</th>
-                  <th scope="col" className="px-6 py-4">Price</th>
-                  <th scope="col" className="px-6 py-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <tr key={product.id} className="border-b dark:border-neutral-500">
-                    <td className="whitespace-nowrap px-6 py-4">
-                        <Image src={product.image_url || '/default-image.png'} alt={product.name} width={50} height={50} className="rounded" />
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 font-medium">{product.name}</td>
-                    <td className="whitespace-nowrap px-6 py-4">${Number(product.price).toFixed(2)}</td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                        <Link href={`/admin/edit-product/${product.id}`} passHref>
-                            <button className="text-blue-600 hover:text-blue-800 font-semibold mr-4">Edit</button>
-                        </Link>
-                        <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:text-red-800 font-semibold">Delete</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+      <div className="bg-white shadow-md rounded-lg overflow-x-auto">
+        <table className="min-w-full table-auto">
+          <thead className="bg-gray-200">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Image</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Price</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {products.length > 0 ? products.map((product) => (
+              <tr key={product.id}>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <img src={product.image_url} alt={product.name} className="w-16 h-16 object-cover rounded" />
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{product.name}</td>
+                <td className="px-6 py-4 whitespace-nowrap">${product.price}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <Link href={`/admin/edit-product/${product.id}`}>
+                        <button className="text-indigo-600 hover:text-indigo-900 mr-4">Edit</button>
+                    </Link>
+                  <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:text-red-900">Delete</button>
+                </td>
+              </tr>
+            )) : (
+              <tr>
+                <td colSpan={4} className="px-6 py-12 text-center text-gray-500">No products found.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
-}
-
-export default function AdminPage() {
-  const { user, isAuthenticated } = useAuth();
-  // The environment variable was not loading correctly on the client side.
-  // Hardcoding the email directly is a more reliable solution for this check.
-  const isAuthorized = isAuthenticated && user?.email === 'admin@example.com';
-
-  if (!isAuthorized) {
-    return <AccessDenied />;
-  }
-
-  return <DashboardContent />;
 }
