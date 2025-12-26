@@ -66,16 +66,24 @@ export default function AdminDashboard() {
     <div className="container mx-auto p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <Link href="/admin/add-product">
-            <button className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700">
-                + Add New Product
-            </button>
-        </Link>
+        <div className="flex items-center space-x-4">
+            <Link href="/admin/orders">
+                <button className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">
+                    Manage Orders
+                </button>
+            </Link>
+            <Link href="/admin/add-product">
+                <button className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700">
+                    + Add New Product
+                </button>
+            </Link>
+        </div>
       </div>
       
-      <p className="mb-6">Welcome to the Our Shop admin panel. Manage your products efficiently.</p>
+      <p className="mb-6">Welcome to the Our Shop admin panel. Manage your products and orders efficiently.</p>
 
       <div className="bg-white shadow-md rounded-lg overflow-x-auto">
+        <h2 class="text-xl font-bold p-4">Product Management</h2>
         <table className="min-w-full table-auto">
           <thead className="bg-gray-200">
             <tr>
